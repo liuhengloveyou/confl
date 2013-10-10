@@ -112,6 +112,11 @@ int confSet(config_t *one, const char *key, const char *val)
 	if (!one) {
 		return 0;
 	}
+	
+	struct config **tmp = findNode(one, key);
+	if (tmp) {
+		return -2;
+	}
 
 	struct config *node = newConfig(key, val);
 	if (!node) {
