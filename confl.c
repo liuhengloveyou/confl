@@ -32,6 +32,12 @@ static struct config **findNode(config_t *one, const char *key)
 	if (!one) {
 		return NULL;
 	}
+	if (!one->confs) {
+		return NULL;
+	}
+	if (!key) {
+		return NULL;
+	}
 
 	if (!strcmp(one->confs->name, key)) {
 		return &one->confs;
@@ -58,14 +64,14 @@ struct config *newConfig(const char *key, const char *val)
 	if (one) {
 		one->next = NULL;
 
-		one->name = malloc(keyLen);
+		one->name = (char *)malloc(keyLen);
 		if (!one->name) {
 			free(one);
 			return NULL;
 		}
 		strcpy(one->name, key);
 
-		one->value = malloc(valLen);
+		one->value = (char *)malloc(valLen);
 		if (!one->value) {
 			free(one->name);
 			free(one);
@@ -112,12 +118,23 @@ int confSet(config_t *one, const char *key, const char *val)
 	if (!one) {
 		return 0;
 	}
-	
+
 	struct config **tmp = findNode(one, key);
 	if (tmp) {
-		return -2;
+		size_t ol = strlen((*tmp)->value);
+		size_t nl = strlen(val);
+		if (nl > ol) {
+			char *tp = (char *)malloc(nl);
+			if (!tp) {
+				return -2;
+			}
+			free((*tmp)->value);
+			(*tmp)->value = tp;
+		}
+		strcpy((*tmp)->value, val);
+		return 0;
 	}
-
+	
 	struct config *node = newConfig(key, val);
 	if (!node) {
 		return -1;
@@ -196,7 +213,7 @@ config_t *confRead(const char *file_name)
 
 	FILE *fp = fopen(file_name, "r");
 	if (NULL == fp) {
-		return NULL;
+		return one;
 	}
 
 	while ((read = getline(&line, &len, fp)) != -1) {
@@ -261,14 +278,19 @@ config_t *confRead(const char *file_name)
 	return one;
 }
 
-
+/*
 int main(int argc, char *argv[])
 {
-	config_t *myconf = confRead("./configfile.prop");
+	config_t *myconf = confRead("./configfile.prop1");
 
 	printf("val:'%s'\n", confGet(myconf, "bbb"));
 
 	confDel(myconf, "c");
+
+	confSet(myconf, "aaa", "this is aaa");
+
+	confSet(myconf, "aaa", "this is a");
+	
 
 	confWrite(myconf);
 
@@ -276,3 +298,4 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+*/

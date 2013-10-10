@@ -2,7 +2,7 @@
   author: liuhengloveyou@gmail.com
   date  : 2013-10-09
 
-  C语言读取配置文件实现
+  C语言读写配置文件实现
 
   每行为一条记录, 格式如下：
   key = value # 注释
