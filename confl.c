@@ -27,7 +27,7 @@ static void freeConfigOne(struct config **one)
 	return;
 }
 
-static struct config **findNode(config_t *one, const char *key)
+static struct config **findNode(const config_t *one, const char *key)
 {
 	if (!one) {
 		return NULL;
@@ -40,12 +40,12 @@ static struct config **findNode(config_t *one, const char *key)
 	}
 
 	if (!strcmp(one->confs->name, key)) {
-		return &one->confs;
+		return (struct config **)&one->confs;
 	}
 
 	for (struct config *tmp = one->confs; tmp; tmp = tmp->next) {
 		if (tmp->next && !strcmp(tmp->next->name, key)) {
-			return &tmp->next;
+			return (struct config **)&tmp->next;
 		}
 	}
 
@@ -150,7 +150,7 @@ int confSet(config_t *one, const char *key, const char *val)
 }
 
 
-const char *confGet(config_t *one, const char *key)
+const char *confGet(const config_t *one, const char *key)
 {
 	struct config **tmp = findNode(one, key);
 	if (!tmp) {
