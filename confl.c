@@ -85,16 +85,18 @@ struct config *newConfig(const char *key, const char *val)
 
 config_t *newConfigl(const char *file_name, size_t len)
 {
-	config_t *one = malloc(sizeof(config_t));
-	if (one) {
-		one->fn = malloc(len+1);
-		if (!one->fn) {
-			return NULL;
-		}
-		strcpy(one->fn, file_name);
-
-		one->confs = NULL;
+	config_t *one = (config_t *)malloc(sizeof(struct configl));
+	if (!one) {
+		return NULL;
 	}
+
+	one->fn = malloc(len+1);
+	if (!one->fn) {
+		free(one);
+		return NULL;
+	}
+	strcpy(one->fn, file_name);
+	one->confs = NULL;
 
 	return one;
 }
@@ -111,6 +113,8 @@ void confDestory(config_t *one)
 	while (one->confs) {
 		freeConfigOne(&one->confs);
 	}
+	free(one);
+	one = NULL;
 }
 
 int confSet(config_t *one, const char *key, const char *val)
@@ -134,7 +138,7 @@ int confSet(config_t *one, const char *key, const char *val)
 		strcpy((*tmp)->value, val);
 		return 0;
 	}
-	
+
 	struct config *node = newConfig(key, val);
 	if (!node) {
 		return -1;
@@ -186,12 +190,12 @@ int confWrite(config_t *one)
 
 	for (struct config *tmp = one->confs; tmp; tmp = tmp->next) {
 		if (tmp->name && tmp->value) {
-			fprintf(fp, "%s = %s\n", tmp->name, tmp->value);	
+			fprintf(fp, "%s = %s\n", tmp->name, tmp->value);
 		}
 	}
 
 	fclose(fp);
-	
+
 	return 0;
 }
 
@@ -274,7 +278,7 @@ config_t *confRead(const char *file_name)
 
 	free(line);
 	fclose(fp);
-	
+
 	return one;
 }
 
@@ -290,7 +294,7 @@ int main(int argc, char *argv[])
 	confSet(myconf, "aaa", "this is aaa");
 
 	confSet(myconf, "aaa", "this is a");
-	
+
 
 	confWrite(myconf);
 

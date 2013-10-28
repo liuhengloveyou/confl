@@ -25,12 +25,11 @@ struct config
 	char *value;
 	struct config *next;
 };
-struct configl
+typedef struct configl
 {
 	char *fn;
 	struct config *confs;
-};
-typedef struct configl config_t;
+} config_t;
 
 config_t *confRead(const char *file_name);
 int confWrite(config_t *one);
