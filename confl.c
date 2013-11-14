@@ -210,14 +210,15 @@ config_t *confRead(const char *file_name)
 		return NULL;
 	}
 
-	config_t *one = newConfigl(file_name, palen);
-	if (!one) {
-		return NULL;
-	}
-
 	FILE *fp = fopen(file_name, "r");
 	if (NULL == fp) {
-		return one;
+		return NULL;
+	}
+	
+	config_t *one = newConfigl(file_name, palen);
+	if (!one) {
+		fclose(fp);
+		return NULL;
 	}
 
 	while ((read = getline(&line, &len, fp)) != -1) {
@@ -247,6 +248,8 @@ config_t *confRead(const char *file_name)
 				if (space) {
 					*space = 0;
 					space = NULL;
+				} else {
+					*tmp = 0;
 				}
 				continue;
 			}
@@ -281,13 +284,12 @@ config_t *confRead(const char *file_name)
 
 	return one;
 }
-
 /*
 int main(int argc, char *argv[])
 {
-	config_t *myconf = confRead("./configfile.prop1");
+	config_t *myconf = confRead("./confl.config");
 
-	printf("val:'%s'\n", confGet(myconf, "bbb"));
+	printf("val:'%s'\n", confGet(myconf, "aaa"));
 
 	confDel(myconf, "c");
 
@@ -302,4 +304,5 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
 */
